@@ -124,6 +124,10 @@ async function loadMenu() {
         selectedCountry = hash.country;
     }
 
+    // Update document title based on layout: default is Healthy Meal Planner
+    // If product layout is selected (Building Materials), change title accordingly.
+    document.title = (hash.layout === "product") ? "Building Materials" : "Healthy Meal Planner";
+
     if (hash.layout == "product") {
         addUSDASearchBar(); // Show search bar with country dropdown
         searchDiv.style.display = "block";
