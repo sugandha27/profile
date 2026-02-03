@@ -125,8 +125,18 @@ async function loadMenu() {
     }
 
     // Update document title based on layout: default is Healthy Meal Planner
-    // If product layout is selected (Building Materials), change title accordingly.
-    document.title = (hash.layout === "product") ? "Building Materials" : "Healthy Meal Planner";
+    // Ensure the site prefix (e.g., "Model Earth -") is applied consistently.
+    (function() {
+        const baseTitle = (hash.layout === "product") ? "Building Materials" : "Healthy Meal Planner";
+        const siteName =  'Model Earth';
+        // Remove existing site prefix if present to avoid duplication
+        const prefixRegex = new RegExp('^' + siteName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + ' - ');
+        let current = document.title || '';
+        if (prefixRegex.test(current)) {
+            current = current.replace(prefixRegex, '');
+        }
+        document.title = siteName + ' - ' + baseTitle;
+    })();
 
     if (hash.layout == "product") {
         addUSDASearchBar(); // Show search bar with country dropdown
