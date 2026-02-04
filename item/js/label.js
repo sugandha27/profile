@@ -155,7 +155,8 @@ async function loadMenu() {
             if (sidebar) sidebar.style.display = "block";
             const productContainer = document.getElementById("product-container");
             const productLabel = document.getElementById("product-label");
-            if (productContainer) productContainer.style.display = "none";
+            // Show the product-container by default so users see the region/category list
+            if (productContainer) productContainer.style.display = "";
 
             // If cat parameter exists, load that subcategory
             if (hash.cat) {
@@ -165,9 +166,26 @@ async function loadMenu() {
                 const categories = PRODUCT_CATEGORIES[selectedCountry] || PRODUCT_CATEGORIES.US;
                 if (categories.length > 0 && categories[0].subcategories && categories[0].subcategories.length > 0) {
                     const firstSubcat = categories[0].subcategories[0];
-                    // Update hash with first subcategory
+                    // Update hash with first subcategory (use goHash when available) and proactively load it
                     if (typeof goHash === "function") {
                         goHash({ cat: firstSubcat });
+                    } else if (typeof updateHash === "function") {
+                        updateHash({ cat: firstSubcat }, true);
+                        // If updateHash didn't trigger event, trigger it explicitly
+                        if (typeof triggerHashChangeEvent === "function") triggerHashChangeEvent();
+                    }
+
+                    // Proactively load the subcategory so UI is populated immediately
+                    try {
+                        await selectProductSubcategory(selectedCountry, firstSubcat);
+                    } catch (e) {
+                        console.error('Error proactively loading first subcategory:', e);
+                    }
+                } else {
+                    // No subcategories found - fall back to product list
+                    if (typeof loadProductList === "function") {
+                        await loadProductList();
+                        if (productContainer) productContainer.style.display = "";
                     }
                 }
             }
